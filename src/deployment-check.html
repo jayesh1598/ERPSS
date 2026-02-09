@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔧 ERP Deployment Checker</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    h1 {
+      color: #1a202c;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+    h2 {
+      color: #2d3748;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+    .subtitle {
+      color: #718096;
+      margin-bottom: 25px;
+    }
+    .status {
+      padding: 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid;
+    }
+    .error {
+      background: #fed7d7;
+      border-color: #e53e3e;
+      color: #742a2a;
+    }
+    .success {
+      background: #c6f6d5;
+      border-color: #38a169;
+      color: #22543d;
+    }
+    .warning {
+      background: #feebc8;
+      border-color: #ed8936;
+      color: #7c2d12;
+    }
+    .info {
+      background: #bee3f8;
+      border-color: #3182ce;
+      color: #2c5282;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 5px;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    button:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+    pre {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 13px;
+      margin: 10px 0;
+    }
+    .step {
+      background: #f7fafc;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border-left: 3px solid #667eea;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 0 5px;
+    }
+    .badge-error { background: #fc8181; color: white; }
+    .badge-success { background: #68d391; color: white; }
+    .badge-warning { background: #f6ad55; color: white; }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    code {
+      background: #edf2f7;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #e53e3e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>🔧 ERP Deployment Checker</h1>
+      <p class="subtitle">Diagnose and fix JWT authentication issues</p>
+      
+      <div class="btn-group">
+        <button onclick="checkServerVersion()">🔍 Check Server Version</button>
+        <button onclick="testAuth()">🔐 Test Authentication</button>
+        <button onclick="showDeploymentGuide()">📖 Deployment Guide</button>
+        <button onclick="checkSession()">💾 Check Session</button>
+      </div>
+
+      <div id="result"></div>
+    </div>
+
+    <div class="card" id="guide" style="display: none;">
+      <h2>📖 How to Deploy Edge Function</h2>
+      
+      <div class="step">
+        <h3>✅ Option 1: Using Supabase CLI (Recommended)</h3>
+        <p><strong>Step 1:</strong> Install Supabase CLI</p>
+        <pre>npm install -g supabase</pre>
+        
+        <p><strong>Step 2:</strong> Login</p>
+        <pre>supabase login</pre>
+        
+        <p><strong>Step 3:</strong> Link project</p>
+        <pre>supabase link --project-ref dhahhnqdwsncjieqydjh</pre>
+        
+        <p><strong>Step 4:</strong> Deploy</p>
+        <pre>supabase functions deploy make-server-8eebe9eb --no-verify-jwt</pre>
+      </div>
+
+      <div class="step">
+        <h3>🌐 Option 2: Via Supabase Dashboard</h3>
+        <p><strong>Step 1:</strong> Go to Dashboard</p>
+        <p>👉 <a href="https://supabase.com/dashboard/project/dhahhnqdwsncjieqydjh/functions" target="_blank">Open Functions Dashboard</a></p>
+        
+        <p><strong>Step 2:</strong> Find and edit <code>make-server-8eebe9eb</code></p>
+        
+        <p><strong>Step 3:</strong> Replace code with corrected version from Figma Make</p>
+        
+        <p><strong>Step 4:</strong> Click Deploy and wait 20-30 seconds</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PROJECT_ID = 'dhahhnqdwsncjieqydjh';
+    const BASE_URL = `https://${PROJECT_ID}.supabase.co/functions/v1/make-server-8eebe9eb`;
+
+    async function checkServerVersion() {
+      const result = document.getElementById('result');
+      result.innerHTML = '<div class="status info">Checking server version... <span class="loading"></span></div>';
+
+      try {
+        const response = await fetch(`${BASE_URL}/health`, {
+          headers: {
+            'apikey': getAnonKey()
+          }
+        });
+        const data = await response.json();
+        
+        console.log('✅ Health check response:', data);
+        
+        const expectedVersion = '2.0-getUser-with-token-param';
+        const isCorrectVersion = data.version === expectedVersion;
+        
+        if (isCorrectVersion) {
+          result.innerHTML = `
+            <div class="status success">
+              <h2>✅ SERVER IS UP TO DATE!</h2>
+              <p><strong>Version:</strong> ${data.version} <span class="badge badge-success">CORRECT</span></p>
+              <p><strong>Auth Method:</strong> ${data.authMethod}</p>
+              <p><strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+              <hr style="margin: 15px 0; border: none; border-top: 1px solid #cbd5e0;">
+              <p>✅ Your Edge Function is deployed correctly!</p>
+              <p>If you're still getting JWT errors, try:</p>
+              <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Click "Check Session" to verify you're logged in</li>
+                <li>Hard refresh your browser (Ctrl+Shift+R)</li>
+                <li>Clear browser cache and cookies</li>
+                <li>Log out and log in again</li>
+              </ul>
+            </div>
+          `;
+        } else {
+          result.innerHTML = `
+            <div class="status error">
+              <h2>❌ SERVER IS OUTDATED!</h2>
+              <p><strong>Current Version:</strong> ${data.version || 'Unknown/Old'} <span class="badge badge-error">OUTDATED</span></p>
+              <p><strong>Expected Version:</strong> ${expectedVersion} <span class="badge badge-success">REQUIRED</span></p>
+              <hr style="margin: 15px 0; border: none; border-top: 1px solid #cbd5e0;">
+              <h3>🚨 YOU MUST DEPLOY THE EDGE FUNCTION</h3>
+              <p>Your Figma Make code is correct, but Supabase is running old code.</p>
+              <p><strong>Quick Fix:</strong></p>
+              <pre>supabase functions deploy make-server-8eebe9eb --no-verify-jwt</pre>
+              <p>Or click "Deployment Guide" above for detailed instructions.</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('❌ Health check error:', error);
+        result.innerHTML = `
+          <div class="status error">
+            <h2>❌ CANNOT REACH SERVER</h2>
+            <p><strong>Error:</strong> ${error.message}</p>
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #cbd5e0;">
+            <p>Possible causes:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+              <li>Edge Function is not deployed at all</li>
+              <li>Network/connection issue</li>
+              <li>Supabase service is down (rare)</li>
+            </ul>
+            <p><strong>Solution:</strong> Deploy the Edge Function using the guide above.</p>
+          </div>
+        `;
+      }
+    }
+
+    async function checkSession() {
+      const result = document.getElementById('result');
+      result.innerHTML = '<div class="status info">Checking session... <span class="loading"></span></div>';
+
+      try {
+        // Try to get session from localStorage
+        const storageKey = `sb-${PROJECT_ID}-auth-token`;
+        const sessionData = localStorage.getItem(storageKey);
+        
+        if (!sessionData) {
+          result.innerHTML = `
+            <div class="status warning">
+              <h2>⚠️ NO SESSION FOUND</h2>
+              <p>You are not logged in.</p>
+              <p><strong>Storage Key:</strong> <code>${storageKey}</code></p>
+              <hr style="margin: 15px 0; border: none; border-top: 1px solid #cbd5e0;">
+              <p><strong>Action Required:</strong> Go to <a href="/login">/login</a> and log in.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const session = JSON.parse(sessionData);
+        const hasAccessToken = !!session?.access_token;
+        const expiresAt = session?.expires_at ? new Date(session.expires_at * 1000) : null;
+        const isExpired = expiresAt ? expiresAt < new Date() : false;
+
+        console.log('📦 Session found:', {
+          hasToken: hasAccessToken,
+          expiresAt: expiresAt?.toISOString(),
+          isExpired
+        });
+
+        if (!hasAccessToken) {
+          result.innerHTML = `
+            <div class="status error">
+              <h2>❌ INVALID SESSION</h2>
+              <p>Session exists but has no access token.</p>
+              <p><strong>Action Required:</strong> Log out and log in again.</p>
+            </div>
+          `;
+          return;
+        }
+
+        if (isExpired) {
+          result.innerHTML = `
+            <div class="status warning">
+              <h2>⚠️ SESSION EXPIRED</h2>
+              <p><strong>Expired at:</strong> ${expiresAt.toLocaleString()}</p>
+              <p><strong>Action Required:</strong> Log in again to refresh your session.</p>
+            </div>
+          `;
+          return;
+        }
+
+        result.innerHTML = `
+          <div class="status success">
+            <h2>✅ VALID SESSION FOUND</h2>
+            <p><strong>User:</strong> ${session.user?.email || 'Unknown'}</p>
+            <p><strong>Expires:</strong> ${expiresAt.toLocaleString()} <span class="badge badge-success">VALID</span></p>
+            <p><strong>Token length:</strong> ${session.access_token.length} chars</p>
+            <p><strong>Token preview:</strong> <code>${session.access_token.substring(0, 30)}...</code></p>
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #cbd5e0;">
+            <p>✅ Your session is valid! If you're getting JWT errors, the issue is with the Edge Function.</p>
+            <p><strong>Next step:</strong> Click "Check Server Version" to verify deployment.</p>
+          </div>
+        `;
+      } catch (error) {
+        console.error('❌ Session check error:', error);
+        result.innerHTML = `
+          <div class="status error">
+            <h2>❌ SESSION CHECK FAILED</h2>
+            <p><strong>Error:</strong> ${error.message}</p>
+            <p><strong>Action Required:</strong> Clear browser storage and log in again.</p>
+          </div>
+        `;
+      }
+    }
+
+    async function testAuth() {
+      const result = document.getElementById('result');
+      result.innerHTML = '<div class="status info">Testing authentication... <span class="loading"></span></div>';
+
+      try {
+        // Get token from localStorage
+        const storageKey = `sb-${PROJECT_ID}-auth-token`;
+        const sessionData = localStorage.getItem(storageKey);
+        
+        if (!sessionData) {
+          result.innerHTML = `
+            <div class="status warning">
+              <h2>⚠️ NOT LOGGED IN</h2>
+              <p>No session found. Please <a href="/login">log in</a> first.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const session = JSON.parse(sessionData);
+        const token = session?.access_token;
+
+        if (!token) {
+          result.innerHTML = `
+            <div class="status error">
+              <h2>❌ NO ACCESS TOKEN</h2>
+              <p>Session exists but has no token. Please log in again.</p>
+            </div>
+          `;
+          return;
+        }
+
+        console.log('🔐 Testing auth with token:', token.substring(0, 20) + '...');
+
+        const response = await fetch(`${BASE_URL}/debug/validate-token`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'apikey': getAnonKey()
+          }
+        });
+
+        const data = await response.json();
+        console.log('🔐 Auth test response:', data);
+
+        if (data.success) {
+          result.innerHTML = `
+            <div class="status success">
+              <h2>✅ AUTHENTICATION WORKS!</h2>
+              <p><strong>User:</strong> ${data.user.email}</p>
+              <p><strong>User ID:</strong> ${data.user.id}</p>
+              <hr style="margin: 15px 0; border: none; border-top: 1px solid #cbd5e0;">
+              <p>✅ Your JWT token is valid and the server can verify it!</p>
+              <p>If your dashboard still has errors, check the browser console for details.</p>
+            </div>
+          `;
+        } else {
+          result.innerHTML = `
+            <div class="status error">
+              <h2>❌ AUTHENTICATION FAILED</h2>
+              <p><strong>Error:</strong> ${data.error}</p>
+              <pre>${JSON.stringify(data, null, 2)}</pre>
+              <hr style="margin: 15px 0; border: none; border-top: 1px solid #cbd5e0;">
+              <h3>🚨 The server is using OLD auth code!</h3>
+              <p><strong>Solution:</strong> Deploy the Edge Function:</p>
+              <pre>supabase functions deploy make-server-8eebe9eb --no-verify-jwt</pre>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('❌ Auth test error:', error);
+        result.innerHTML = `
+          <div class="status error">
+            <h2>❌ AUTH TEST FAILED</h2>
+            <p><strong>Error:</strong> ${error.message}</p>
+            <p>This usually means the Edge Function is not deployed or has errors.</p>
+          </div>
+        `;
+      }
+    }
+
+    function showDeploymentGuide() {
+      const guide = document.getElementById('guide');
+      guide.style.display = guide.style.display === 'none' ? 'block' : 'none';
+      if (guide.style.display !== 'none') {
+        guide.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function getAnonKey() {
+      // Try to extract from your app's config
+      return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoYWhobnFkd3NuY2ppZXF5ZGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIzNjcyNDksImV4cCI6MjA0Nzk0MzI0OX0.cPkRLTi6SsZ0HjJSCmWHY7TDEW1FbQvgOzUYJz0wjLo';
+    }
+
+    // Auto-check on load
+    window.onload = () => {
+      checkServerVersion();
+    };
+  </script>
+</body>
+</html>

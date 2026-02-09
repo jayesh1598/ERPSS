@@ -1,0 +1,6 @@
+# Supabase Configuration
+# This file configures local development and deployment settings
+
+[functions.make-server-8eebe9eb]
+# Disable automatic JWT verification - we handle auth in our middleware
+verify_jwt = false

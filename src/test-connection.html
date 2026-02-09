@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Edge Function Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .status.checking {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+        .status.success {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+        .status.error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        .details {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        .info {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #ff9800;
+            margin: 20px 0;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Supabase Edge Function Test</h1>
+        
+        <div class="info">
+            <strong>ℹ️ About this test:</strong><br>
+            This page tests your Edge Function with the proper <code>apikey</code> header. 
+            If this works but browser URL doesn't, that's normal - browsers don't send custom headers.
+        </div>
+
+        <div id="status" class="status checking">
+            <strong>Status:</strong> Testing connection...
+        </div>
+
+        <div id="details"></div>
+
+        <button onclick="testConnection()">🔄 Test Again</button>
+
+        <h2>Configuration</h2>
+        <div class="details">
+            <strong>Project ID:</strong> dhahhnqdwsncjieqydjh<br>
+            <strong>Function Name:</strong> make-server-8eebe9eb<br>
+            <strong>Health Endpoint:</strong> https://dhahhnqdwsncjieqydjh.supabase.co/functions/v1/make-server-8eebe9eb/health<br>
+            <strong>Anon Key:</strong> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...(configured)
+        </div>
+
+        <h2>cURL Alternative</h2>
+        <p>If this test fails, try using cURL in your terminal:</p>
+        <pre>curl -i https://dhahhnqdwsncjieqydjh.supabase.co/functions/v1/make-server-8eebe9eb/health \
+  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoYWhobnFkd3NuY2ppZXF5ZGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDI4MDIsImV4cCI6MjA4NTUxODgwMn0.UP_FqohTLEuKepdz2_nz5PnIYB8gQBJ0B1IYDhVYz1c"</pre>
+    </div>
+
+    <script>
+        const projectId = 'dhahhnqdwsncjieqydjh';
+        const publicAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoYWhobnFkd3NuY2ppZXF5ZGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDI4MDIsImV4cCI6MjA4NTUxODgwMn0.UP_FqohTLEuKepdz2_nz5PnIYB8gQBJ0B1IYDhVYz1c';
+
+        async function testConnection() {
+            const statusDiv = document.getElementById('status');
+            const detailsDiv = document.getElementById('details');
+            
+            statusDiv.className = 'status checking';
+            statusDiv.innerHTML = '<strong>Status:</strong> Testing connection...';
+            detailsDiv.innerHTML = '';
+
+            const startTime = Date.now();
+
+            try {
+                console.log('Testing:', `https://${projectId}.supabase.co/functions/v1/make-server-8eebe9eb/health`);
+                
+                const response = await fetch(
+                    `https://${projectId}.supabase.co/functions/v1/make-server-8eebe9eb/health`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': publicAnonKey,
+                        },
+                    }
+                );
+
+                const duration = Date.now() - startTime;
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Response data:', data);
+                    
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = '<strong>✅ Success!</strong> Edge Function is deployed and working!';
+                    
+                    detailsDiv.innerHTML = `
+                        <div class="details">
+                            <strong>Response Status:</strong> ${response.status} ${response.statusText}<br>
+                            <strong>Response Time:</strong> ${duration}ms<br>
+                            <strong>Server Status:</strong> ${data.status}<br>
+                            <strong>Server Time:</strong> ${data.timestamp}<br>
+                            <strong>Message:</strong> ${data.message || 'N/A'}<br><br>
+                            <strong style="color: green;">✅ Your Edge Function is working perfectly!</strong><br>
+                            You can now use your application. Refresh the app page.
+                        </div>
+                    `;
+                } else {
+                    let errorText = '';
+                    try {
+                        const errorData = await response.json();
+                        errorText = JSON.stringify(errorData, null, 2);
+                    } catch (e) {
+                        errorText = await response.text();
+                    }
+                    
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = `<strong>❌ Error:</strong> Server returned ${response.status}`;
+                    
+                    let troubleshooting = '';
+                    if (response.status === 404) {
+                        troubleshooting = `
+                            <div style="margin-top: 15px; padding: 10px; background: #fff3e0; border-radius: 4px;">
+                                <strong>⚠️ Edge Function Not Found</strong><br>
+                                The function needs to be deployed. See <code>/DEPLOYMENT_GUIDE.md</code>
+                            </div>
+                        `;
+                    } else if (response.status === 401) {
+                        troubleshooting = `
+                            <div style="margin-top: 15px; padding: 10px; background: #fff3e0; border-radius: 4px;">
+                                <strong>⚠️ Authentication Issue</strong><br>
+                                This might mean the function is deployed but has an auth configuration issue.
+                                Check Edge Function logs in your Supabase dashboard.
+                            </div>
+                        `;
+                    }
+                    
+                    detailsDiv.innerHTML = `
+                        <div class="details">
+                            <strong>Response Status:</strong> ${response.status} ${response.statusText}<br>
+                            <strong>Response Time:</strong> ${duration}ms<br>
+                            <strong>Error Details:</strong><br>
+                            <pre>${errorText}</pre>
+                            ${troubleshooting}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<strong>❌ Error:</strong> Cannot connect to server';
+                
+                detailsDiv.innerHTML = `
+                    <div class="details">
+                        <strong>Error:</strong> ${error.message}<br><br>
+                        <strong>Possible causes:</strong><br>
+                        • Network connection issue<br>
+                        • Supabase project not active<br>
+                        • Edge Function not deployed<br>
+                        • CORS issue (check browser console)<br><br>
+                        <strong>Next steps:</strong><br>
+                        1. Check your internet connection<br>
+                        2. Verify Supabase project is active<br>
+                        3. Deploy Edge Function (see /DEPLOYMENT_GUIDE.md)<br>
+                        4. Check browser console (F12) for details
+                    </div>
+                `;
+                
+                console.error('Connection test failed:', error);
+            }
+        }
+
+        // Run test on page load
+        window.addEventListener('load', testConnection);
+    </script>
+</body>
+</html>
